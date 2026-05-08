@@ -165,6 +165,7 @@
                 <p id="weatherInfo"></p>
                 <p id="dinnerDesc"></p>
 
+                <button onclick="searchShop()">近くのお店を探す 🍽️</button>
                 <button onclick="restart()">もう一度</button>
             </div>
 
@@ -322,6 +323,15 @@
         
             function restart(){
                 location.reload();
+        }
+
+        function searchShop() {
+            const menu =
+                document.getElementById("dinnerName").textContent;
+            const url =
+                `https://www.google.com/maps/search/${encodeURIComponent(menu)}`;
+
+            window.open(url, "_blank");
         }
     </script>
 
