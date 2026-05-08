@@ -137,6 +137,15 @@
             margin: 20px 0;
             line-height: 1.6;
         }
+        .dinner-image {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 20px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
         .btn-share {
             background: linear-gradient(135deg, #06c755 0%, #05b34a 100%);
             box-shadow: 0 4px 15px rgba(6, 199, 85, 0.4);
@@ -227,6 +236,7 @@
 
             <div id="result" class="result result-card">
                 <div class="dinner-emoji" id="emoji"></div>
+                <img id="dinnerImage" class="dinner-image">
                 <p id="weatherInfo"></p>
                 <h2 id="dinnerName"></h2>
                 <p id="dinnerDesc"></p>
@@ -399,20 +409,32 @@
 
     // 料理ごとの絵文字
     const emojiMap = {
-    'オムライス': '🍳',
-    'ハンバーグ': '🍖',
-    '焼肉': '🥩',
-    'しゃぶしゃぶ': '🍲',
-    'ラーメン': '🍜',
-    '寿司': '🍣',
-    'カレー': '🍛',
-    'パスタ': '🍝',
-    'ピザ': '🍕',
-    '餃子': '🥟',
-    'ステーキ': '🥩',
-    '唐揚げ': '🍗',
-    'うどん': '🍜',
-    'そば': '🍜'
+        'オムライス': '🍳',
+        'ハンバーグ': '🍖',
+        '焼肉': '🥩',
+        'しゃぶしゃぶ': '🍲',
+        'ラーメン': '🍜',
+        '寿司': '🍣',
+        'カレー': '🍛',
+        'パスタ': '🍝',
+        'ピザ': '🍕',
+        '餃子': '🥟',
+        'ステーキ': '🥩',
+        '唐揚げ': '🍗',
+        'うどん': '🍜',
+        'そば': '🍜'
+    };
+
+    const imageMap = {
+        'オムライス': 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d',
+        'ハンバーグ': 'https://images.unsplash.com/photo-1550547660-d9450f859349',
+        '焼肉': 'https://images.unsplash.com/photo-1544025162-d76694265947',
+        'しゃぶしゃぶ': 'https://images.unsplash.com/photo-1526318896980-cf78c088247c',
+        'ラーメン': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624',
+        '寿司': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c',
+        'カレー': 'https://images.unsplash.com/photo-1585937421612-70a008356fbe',
+        'ピザ': 'https://images.unsplash.com/photo-1513104890138-7c749659a591',
+        'パスタ': 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9'
     };
 
     // dinnerオブジェクト作成
@@ -445,6 +467,8 @@
 
     document.getElementById('emoji').textContent = dinner.emoji;
     document.getElementById('dinnerName').textContent = dinner.name;
+    ddocument.getElementById('dinnerImage').src =
+        imageMap[dinner.name] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c';
     document.getElementById('dinnerDesc').textContent = dinner.desc;
     if (temp >= 28) {
         document.body.style.background =
