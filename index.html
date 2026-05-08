@@ -198,7 +198,7 @@
         
         async function getWeather(lat,lon){
             const res = await fetch(
-                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=YOUR_API_KEY&units=metric`
+                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=4d817a50293228c71c0feaf97c4c4cd2&units=metric&lang=ja`
             );
             const data = await res.json();
             return data.main.temp;
@@ -310,3 +310,7 @@
 </body>
 
 </html>
+
+
+
+YOUR_API_KEY
