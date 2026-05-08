@@ -95,10 +95,13 @@
         }
         
         .dinner-image {
-            width:100%;
-            border-radius:16px;
-            margin:20px 0;
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            display: block;
+            margin: 20px auto;
             transition: opacity 0.3s;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
         }
         
         .spinner {
@@ -300,6 +303,26 @@
             ];
 
             const menu = allMenus[Math.floor(Math.random() * allMenus.length)];
+
+            const imageMap = {
+                "ラーメン":
+                    "https://cdn-icons-png.flaticon.com/512/6978/6978255.png",
+
+                "寿司":
+                    "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
+
+                "カレー":
+                    "https://cdn-icons-png.flaticon.com/512/5787/5787100.png",
+
+                "焼肉":
+                    "https://cdn-icons-png.flaticon.com/512/1046/1046784.png",
+
+                "パスタ":
+                    "https://cdn-icons-png.flaticon.com/512/2515/2515183.png",
+
+                "オムライス":
+                    "https://cdn-icons-png.flaticon.com/512/3480/3480823.png"
+            };
         
             document.getElementById("loading").style.display="none";
         
@@ -313,12 +336,13 @@
                 `現在${Math.round(temp)}℃`;
         
             const img = document.getElementById("dinnerImage");
-            img.style.opacity=0;
-        
-            setTimeout(()=>{
-                img.src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
-                img.style.opacity=1;
-            },200);
+            img.style.opacity = 0;
+            setTimeout(() => {
+                img.src =
+                    imageMap[menu] ||
+                    "https://cdn-icons-png.flaticon.com/512/1046/1046784.png";
+                img.style.opacity = 1;
+            }, 200);
             }
         
             function restart(){
