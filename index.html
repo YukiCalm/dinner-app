@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>おすすめ夕飯診断</title>
+
     <style>
         body {
             font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
@@ -13,527 +15,225 @@
             min-height: 100vh;
             background-size: 400% 400%;
             animation: gradientMove 10s ease infinite;
-            transition: background 1s ease;
         }
+        
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
         .container {
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
         }
+        
         .card {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             padding: 30px;
             border-radius: 24px;
             border: 1px solid rgba(255,255,255,0.2);
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
         }
+        
         h1 {
             color: white;
             text-align: center;
-            font-size: 28px;
-            margin: 0 0 10px 0;
-            font-weight: bold;
         }
+        
         h2 {
-            color:  white;
-            font-size: 22px;
-            margin-bottom: 20px;
+            color: white;
             text-align: center;
         }
-        .question {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-        .question.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: 
-        translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: 
-        translateY(0);
-            }
-        }
+        
+        .question { display:none; }
+        .question.active { display:block; }
+        
         button {
             width: 100%;
-            padding: 18px;
-            margin: 12px 0;
+            padding: 16px;
+            margin: 10px 0;
             border: none;
             border-radius: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg,#667eea,#764ba2);
             color: white;
-            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            position: relative;
-            overflow: hidden;
         }
-        @keyframes gradientMove {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
+        
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-            filter: brightness(1.1);
         }
-        button:active {
-            transform: translateY(0);
-        }
-        .result {
-            display: none;
-            text-align: center;
-            animation: fadeIn 0.5s;
-        }
-        .result.active {
-            display: block;
-        }
-        .dinner-emoji {
-            font-size: 100px;
-            margin: 30px 0;
-            animation: bounce 1s;
-        }
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-20px);
-            } 
-        }
-        #weatherInfo {
-            font-size: 18px;
-            color: #666;
-            margin: 10px 0;
-            text-align: center;
-            line-height: 1.8;
-        }
-        #dinnerName {
-            font-size: 32px;
-            color: #667eea;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        #dinnerDesc {
-            font-size: 18px;
-            color:  rgba(255,255,255,0.9);
-            margin: 20px 0;
-            line-height: 1.6;
-        }
-        .dinner-image {
-            width: 100%;
-            max-width: 320px;
-            border-radius: 20px;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            object-fit: cover;
-        }
-        .btn-share {
-            background: linear-gradient(135deg, #06c755 0%, #05b34a 100%);
-            box-shadow: 0 4px 15px rgba(6, 199, 85, 0.4);
-        }
-        .btn-share:hover {
-            box-shadow: 0 6px 20px rgba(6, 199, 85, 0.6);
-        }
-        .btn-restart {
-            background: linear-gradient(135deg, #999 0%, #777 100%);
-            box-shadow: 0 4px 15px rgba(153, 153, 153, 0.4);
-        }
-        .btn-restart:hover {
-            box-shadow: 0 6px 20px rgba(153, 153, 153, 0.6);
-        }
+        
         .progress {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            display:flex;
+            justify-content:center;
+            gap:10px;
+            margin-bottom:20px;
         }
+        
         .progress-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ddd;
-            transition: all 0.3s;
+            width:10px;
+            height:10px;
+            border-radius:50%;
+            background:#ddd;
         }
+        
         .progress-dot.active {
-            background: #667eea;
-            transform: scale(1.3);
+            background:#fff;
         }
-        .result-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
-            animation: popUp 0.5s ease;
+        
+        .result { display:none; }
+        .result.active { display:block; }
+        
+        .dinner-image {
+            width:100%;
+            border-radius:16px;
+            margin:20px 0;
+            transition: opacity 0.3s;
         }
-
-        @keyframes popUp {
-            0% {
-            transform: scale(0.8);
-            opacity: 0;
+        
+        .spinner {
+            width:40px;
+            height:40px;
+            border:4px solid rgba(255,255,255,0.3);
+            border-top:4px solid white;
+            border-radius:50%;
+            animation: spin 1s linear infinite;
+            margin:20px auto;
         }
-            100% {
-            transform: scale(1);
-            opacity: 1;
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-    }
     </style>
 </head>
+
 <body>
+
     <div class="container">
-          <div class="card">
-              <h1>🍱 おすすめ夕飯診断</h1>
-              <div class="progress" id="progress">
-                  <div class="progress-dot active"></div>
-                  <div class="progress-dot"></div>
-                  <div class="progress-dot"></div>
-                  <div class="progress-dot"></div>
-              </div>
-              <div id="q1" class="question active">
-                  <h2>今日の気分は？</h2>
-                  <button onclick="answer(1, 'さっぱり')">さっぱりしたい</button>
-                  <button onclick="answer(1, 'がっつり')">がっつり食べたい</button>
-                  <button onclick="answer(1, 'ヘルシー')">ヘルシーに</button>
-              </div>
+        <div class="card">
+
+            <h1>🍱 夕飯診断</h1>
+
+            <div class="progress" id="progress">
+                <div class="progress-dot active"></div>
+                <div class="progress-dot"></div>
+                <div class="progress-dot"></div>
+            </div>
+
+            <div id="q1" class="question active">
+                <h2>気分は？</h2>
+                <button onclick="answer(1,'さっぱり')">さっぱり</button>
+                <button onclick="answer(1,'がっつり')">がっつり</button>
+                <button onclick="answer(1,'ヘルシー')">ヘルシー</button>
+            </div>
 
             <div id="q2" class="question">
                 <h2>予算は？</h2>
-                <button onclick="answer(2, '安い')">〜500円</button>
-                <button onclick="answer(2, '普通')">500〜1000円</button>
-                <button onclick="answer(2, '高い')">1000円〜</button>
+                <button onclick="answer(2,'安い')">〜500円</button>
+                <button onclick="answer(2,'普通')">500〜1000円</button>
+                <button onclick="answer(2,'高い')">1000円〜</button>
             </div>
 
             <div id="q3" class="question">
                 <h2>好きな味は？</h2>
-                    <button onclick="answer(3, '和風')">和風</button>
-                    <button onclick="answer(3, '洋風')">洋風</button>
-                    <button onclick="answer(3, '中華')">中華・アジアン</button>
-                    <button onclick="answer(3, '韓国')">韓国料理</button>
-                    <button onclick="answer(3, 'エスニック')">エスニック</button>
-            </div>
-            
-            <div id="loading" style="display:none; text-align:center;">
-                <h2>🔍 おすすめ夕飯を診断中...</h2>
+                <button onclick="answer(3,'和風')">和風</button>
+                <button onclick="answer(3,'洋風')">洋風</button>
+                <button onclick="answer(3,'中華')">中華</button>
+                <button onclick="answer(3,'韓国')">韓国</button>
             </div>
 
-            <div id="result" class="result result-card">
-                <div class="dinner-emoji" id="emoji"></div>
-                <img id="dinnerImage" class="dinner-image">
-                <p id="weatherInfo"></p>
-                <h2 id="dinnerName"></h2>
-                <p id="dinnerDesc"></p>
-                <button id="shopBtn" onclick="openMap()">近くのお店を探す 🍽️</button>
-                <button class="btn-share" onclick="shareLINE()">結果をシェア</button>
-                <button class="btn-restart" onclick="restart()">もう一度診断</button>
+            <div id="loading" style="display:none; text-align:center;">
+                <div class="spinner"></div>
+                <h2>診断中...</h2>
             </div>
-          </div>  
+
+            <div id="result" class="result">
+                <h2 id="dinnerName"></h2>
+
+                <img id="dinnerImage" class="dinner-image">
+
+                <p id="weatherInfo"></p>
+                <p id="dinnerDesc"></p>
+
+                <button onclick="restart()">もう一度</button>
+            </div>
+
+        </div>
     </div>
 
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
         let answers = {};
-        const API_KEY = '4d817a50293228c71c0feaf97c4c4cd2';
-
-        // LIFF初期化
-        async function initLIFF() {
-        try {
-            await liff.init({ liffId: '2010000602-oJBHW9ZP' });
-
-            if (!liff.isLoggedIn()) {
-                liff.login();
-             }
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    initLIFF();
-
-        async function getWeather(lat, lon) {
-
-        const url =
-            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=ja`;
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        return data.main.temp;
-        }
-
-        function getTempCategory(temp) {
-          if (temp >= 28) {
-              return '暑い';
-          } else if (temp <= 15) {
-                return '寒い';
-          } else {
-              return '普通';
-          }
-        }
-        function answer(questionNum, value) {
-            answers[questionNum] = value;
-            
-             // プログレスバー更新
-            const dots = document.querySelectorAll('.progress-dot');
-            dots.forEach((dot, index) => {
-                if (index < questionNum) {
-                    dot.classList.add('active');
-                }
-            });
-
-            document.getElementById('q' + questionNum).classList.remove('active');
-            
-            if (questionNum < 3) {
-                document.getElementById('q' + (questionNum + 1)).classList.add('active');
+        let isProcessing = false;
+        
+        function answer(q,v){
+            if(isProcessing) return;
+            answers[q]=v;
+        
+            document.getElementById("q"+q).classList.remove("active");
+        
+            if(q<3){
+                document.getElementById("q"+(q+1)).classList.add("active");
+        
+                document.querySelectorAll(".progress-dot")[q].classList.add("active");
             } else {
-            
-            document.getElementById('loading').style.display = 'block';
-
-            navigator.geolocation.getCurrentPosition(
-                async position => {
-
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-
-                    const temp = await getWeather(lat, lon);
-
-                    answers[4] = getTempCategory(temp);
-
-                    showResult(temp);
-                },
-                error => {
-                    alert('位置情報が取得できませんでした');
-                    showResult(25);
-              }
-          );
-          }
-          }
-        function showResult(temp) {
-
-        document.getElementById('loading').style.display = 'none';  
-
-        const allMenus = [
-            'オムライス',
-            'ハンバーグ',
-            '焼肉',
-            'しゃぶしゃぶ',
-            'ラーメン',
-            'うどん',
-            'そば',
-            '寿司',
-            'カレー',
-            'パスタ',
-            'ピザ',
-            '餃子',
-            'チャーハン',
-            'ステーキ',
-            '唐揚げ',
-            'とんかつ',
-            'お好み焼き',
-            '焼き鳥',
-            '鍋',
-            'ビビンバ',
-            'サムギョプサル',
-            'ガパオライス',
-            '麻婆豆腐',
-            '牛丼',
-            '親子丼',
-            '天丼',
-            '海鮮丼',
-            'ロコモコ',
-            'タコライス',
-            'ドリア',
-            'グラタン',
-            'シチュー',
-            'ハンバーガー',
-            'アヒージョ',
-            'ムニエル',
-            'たこ焼き',
-            'もんじゃ焼き',
-            '串カツ',
-            'おでん',
-            'すき焼き',
-            '生姜焼き',
-            'チキン南蛮',
-            '油淋鶏',
-            '酢豚',
-            '青椒肉絲',
-            '回鍋肉',
-            '天津飯',
-            '中華丼',
-            '焼きそば',
-            '冷やし中華',
-            '生春巻き',
-            'ロールキャベツ',
-            'メンチカツ',
-            'コロッケ',
-            'ハヤシライス',
-            'リゾット',
-            'ラザニア',
-            'チーズフォンデュ',
-            '焼きうどん',
-            'ちゃんぽん',
-            '皿うどん',
-            'チーズタッカルビ',
-            'ヤンニョムチキン',
-            'チヂミ',
-            '小籠包',
-            'エビチリ',
-            'エビマヨ',
-            'カツ丼',
-            'うな重',
-            'ちらし寿司',
-            '手巻き寿司',
-        ];
-
-    // ランダムメニュー抽選
-    const index = Math.floor(Math.random() * allMenus.length);
-
-    const menuName = allMenus[index];
-
-    // 料理ごとの絵文字
-    const emojiMap = {
-        'オムライス': '🍳',
-        'ハンバーグ': '🍖',
-        '焼肉': '🥩',
-        'しゃぶしゃぶ': '🍲',
-        'ラーメン': '🍜',
-        '寿司': '🍣',
-        'カレー': '🍛',
-        'パスタ': '🍝',
-        'ピザ': '🍕',
-        '餃子': '🥟',
-        'ステーキ': '🥩',
-        '唐揚げ': '🍗',
-        'うどん': '🍜',
-        'そば': '🍜'
-    };
-
-    const imageMap = {
-        'オムライス': 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d',
-        'ハンバーグ': 'https://images.unsplash.com/photo-1550547660-d9450f859349',
-        '焼肉': 'https://images.unsplash.com/photo-1544025162-d76694265947',
-        'しゃぶしゃぶ': 'https://images.unsplash.com/photo-1526318896980-cf78c088247c',
-        'ラーメン': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624',
-        '寿司': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c',
-        'カレー': 'https://images.unsplash.com/photo-1585937421612-70a008356fbe',
-        'ピザ': 'https://images.unsplash.com/photo-1513104890138-7c749659a591',
-        'パスタ': 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9'
-    };
-
-    // dinnerオブジェクト作成
-    let dinner = {
-        emoji: emojiMap[menuName] || '🍽️',
-        name: menuName,
-        desc: '今日のおすすめメニューです！'
-    };
-    
-    // 気温による説明追加
-    if (answers[4] === '暑い') {
-        if (answers[1] === 'さっぱり') {
-            dinner.desc += '！暑い夜にぴったり';
-        } else if (answers[1] === 'がっつり') {
-            dinner.desc += '！暑さに負けずスタミナ補給';
-        } else {
-            dinner.desc += '！暑い日でも食べやすい';
-        }
-    } else if (answers[4] === '寒い') {
-        if (answers[1] === 'さっぱり') {
-            dinner.desc += '！温かくてホッとする';
-        } else if (answers[1] === 'がっつり') {
-            dinner.desc += '！体が温まります';
-        } else {
-            dinner.desc += '！寒い夜に最適';
-        }
-    } else {
-        dinner.desc += '！今夜にぴったり';
-    }
-
-    document.getElementById('emoji').textContent = dinner.emoji;
-    document.getElementById('dinnerName').textContent = dinner.name;
-    ddocument.getElementById('dinnerImage').src =
-        imageMap[dinner.name] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c';
-    document.getElementById('dinnerDesc').textContent = dinner.desc;
-    if (temp >= 28) {
-        document.body.style.background =
-        'linear-gradient(-45deg, #ff9966, #ff5e62, #ff6a88)';
-    } else if (temp <= 15) {
-        document.body.style.background =
-        'linear-gradient(-45deg, #2193b0, #6dd5ed, #74ebd5)';
-    } else {
-        document.body.style.background =
-        'linear-gradient(-45deg, #667eea, #764ba2, #6dd5ed)';
-    }
-    let weatherMessage = '';
-    if (temp >= 28) {
-        weatherMessage = '🔥 暑いですね！';
-    } else if (temp <= 15) {
-        weatherMessage = '❄️ 寒いですね！';
-    } else {
-        weatherMessage = '🌤 過ごしやすい気温です';
-    }
-    document.getElementById('weatherInfo').innerHTML =
-    `${weatherMessage}<br>現在は ${Math.round(temp)}℃`;
-    document.getElementById('result').classList.add('active');
-    document.getElementById('progress').style.display = 'none';
-    }
-        function shareLINE() {
-            const dinnerName = document.getElementById('dinnerName').textContent;
-
-            if (!liff.isInClient()) {
-                alert('LINEアプリ内で開いてください');
-                return;
+                startResult();
             }
-
-            liff.shareTargetPicker([{
-                type: 'text',
-                text: `今夜のおすすめ夕飯は「${dinnerName}」でした！🍴\nあなたも診断してみよう！`
-            }]);
         }
-        function openMap() {
-
-        const dinnerName =
-            document.getElementById('dinnerName').textContent;
-
-        const url =
-        `https://www.google.com/maps/search/${encodeURIComponent(dinnerName)}`;
-
-        window.open(url, '_blank');
-    }
-
-        function restart() {
-            answers = {};
-            document.querySelectorAll('.question, .result').forEach(el => {
-                el.classList.remove('active');
+        
+        function startResult(){
+            isProcessing = true;
+            document.getElementById("loading").style.display="block";
+        
+            navigator.geolocation.getCurrentPosition(async pos=>{
+                const temp = await getWeather(pos.coords.latitude,pos.coords.longitude);
+                showResult(temp);
+            },()=>{
+                showResult(25);
             });
-            document.getElementById('q1').classList.add('active');
-            document.getElementById('progress').style.display = 'flex';
-            // プログレスバーリセット
-            const dots = document.querySelectorAll('.progress-dot');
-            dots.forEach((dot, index) => {
-                if (index === 0) {
-                  dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
+        }
+        
+        async function getWeather(lat,lon){
+            const res = await fetch(
+                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=YOUR_API_KEY&units=metric`
+            );
+            const data = await res.json();
+            return data.main.temp;
+        }
+        
+        function showResult(temp){
+        
+        document.getElementById("loading").style.display="none";
+        
+        const menus=["ラーメン","寿司","カレー","焼肉","パスタ"];
+        const menu = menus[Math.floor(Math.random()*menus.length)];
+        
+        document.getElementById("result").classList.add("active");
+        
+        document.getElementById("dinnerName").textContent = menu;
+        document.getElementById("dinnerDesc").textContent =
+        `今日のおすすめは${menu}！`;
+        
+        document.getElementById("weatherInfo").textContent =
+        `現在${Math.round(temp)}℃`;
+        
+        const img = document.getElementById("dinnerImage");
+        img.style.opacity=0;
+        
+        setTimeout(()=>{
+            img.src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
+            img.style.opacity=1;
+        },200);
+        }
+        
+        function restart(){
+            location.reload();
         }
     </script>
+
 </body>
+
 </html>
