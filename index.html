@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おすすめ夕飯診断</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(-45deg, #667eea, #764ba2,#6dd5ed, #2193b0);
+            min-height: 100vh;
+            background-size: 400% 400%;
+            animation: gradientMove 10s ease infinite;
+            transition: background 1s ease;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            font-size: 28px;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+        h2 {
+            color:  white;
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .question {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .question.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: 
+        translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: 
+        translateY(0);
+            }
+        }
+        button {
+            width: 100%;
+            padding: 18px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            filter: brightness(1.1);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+        .result.active {
+            display: block;
+        }
+        .dinner-emoji {
+            font-size: 100px;
+            margin: 30px 0;
+            animation: bounce 1s;
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            } 
+        }
+        #weatherInfo {
+            font-size: 18px;
+            color: #666;
+            margin: 10px 0;
+            text-align: center;
+            line-height: 1.8;
+        }
+        #dinnerName {
+            font-size: 32px;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        #dinnerDesc {
+            font-size: 18px;
+            color:  rgba(255,255,255,0.9);
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .btn-share {
+            background: linear-gradient(135deg, #06c755 0%, #05b34a 100%);
+            box-shadow: 0 4px 15px rgba(6, 199, 85, 0.4);
+        }
+        .btn-share:hover {
+            box-shadow: 0 6px 20px rgba(6, 199, 85, 0.6);
+        }
+        .btn-restart {
+            background: linear-gradient(135deg, #999 0%, #777 100%);
+            box-shadow: 0 4px 15px rgba(153, 153, 153, 0.4);
+        }
+        .btn-restart:hover {
+            box-shadow: 0 6px 20px rgba(153, 153, 153, 0.6);
+        }
+        .progress {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: all 0.3s;
+        }
+        .progress-dot.active {
+            background: #667eea;
+            transform: scale(1.3);
+        }
+        .result-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+            animation: popUp 0.5s ease;
+        }
+
+        @keyframes popUp {
+            0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+            100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+          <div class="card">
+              <h1>🍱 おすすめ夕飯診断</h1>
+              <div class="progress" id="progress">
+                  <div class="progress-dot active"></div>
+                  <div class="progress-dot"></div>
+                  <div class="progress-dot"></div>
+                  <div class="progress-dot"></div>
+              </div>
+              <div id="q1" class="question active">
+                  <h2>今日の気分は？</h2>
+                  <button onclick="answer(1, 'さっぱり')">さっぱりしたい</button>
+                  <button onclick="answer(1, 'がっつり')">がっつり食べたい</button>
+                  <button onclick="answer(1, 'ヘルシー')">ヘルシーに</button>
+              </div>
+
+            <div id="q2" class="question">
+                <h2>予算は？</h2>
+                <button onclick="answer(2, '安い')">〜500円</button>
+                <button onclick="answer(2, '普通')">500〜1000円</button>
+                <button onclick="answer(2, '高い')">1000円〜</button>
+            </div>
+
+            <div id="q3" class="question">
+                <h2>好きな味は？</h2>
+                    <button onclick="answer(3, '和風')">和風</button>
+                    <button onclick="answer(3, '洋風')">洋風</button>
+                    <button onclick="answer(3, '中華')">中華・アジアン</button>
+                    <button onclick="answer(3, '韓国')">韓国料理</button>
+                    <button onclick="answer(3, 'エスニック')">エスニック</button>
+            </div>
+            
+            <div id="loading" style="display:none; text-align:center;">
+                <h2>🔍 おすすめ夕飯を診断中...</h2>
+            </div>
+
+            <div id="result" class="result result-card">
+                <div class="dinner-emoji" id="emoji"></div>
+                <p id="weatherInfo"></p>
+                <h2 id="dinnerName"></h2>
+                <p id="dinnerDesc"></p>
+                <button id="shopBtn" onclick="openMap()">近くのお店を探す 🍽️</button>
+                <button class="btn-share" onclick="shareLINE()">結果をシェア</button>
+                <button class="btn-restart" onclick="restart()">もう一度診断</button>
+            </div>
+          </div>  
+    </div>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        let answers = {};
+        const API_KEY = '4d817a50293228c71c0feaf97c4c4cd2';
+
+        // LIFF初期化
+        async function initLIFF() {
+        try {
+            await liff.init({ liffId: '2010000602-oJBHW9ZP' });
+
+            if (!liff.isLoggedIn()) {
+                liff.login();
+             }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    initLIFF();
+
+        async function getWeather(lat, lon) {
+
+        const url =
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=ja`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        return data.main.temp;
+        }
+
+        function getTempCategory(temp) {
+          if (temp >= 28) {
+              return '暑い';
+          } else if (temp <= 15) {
+                return '寒い';
+          } else {
+              return '普通';
+          }
+        }
+        function answer(questionNum, value) {
+            answers[questionNum] = value;
+            
+             // プログレスバー更新
+            const dots = document.querySelectorAll('.progress-dot');
+            dots.forEach((dot, index) => {
+                if (index < questionNum) {
+                    dot.classList.add('active');
+                }
+            });
+
+            document.getElementById('q' + questionNum).classList.remove('active');
+            
+            if (questionNum < 3) {
+                document.getElementById('q' + (questionNum + 1)).classList.add('active');
+            } else {
+            
+            document.getElementById('loading').style.display = 'block';
+
+            navigator.geolocation.getCurrentPosition(
+                async position => {
+
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    const temp = await getWeather(lat, lon);
+
+                    answers[4] = getTempCategory(temp);
+
+                    showResult(temp);
+                },
+                error => {
+                    alert('位置情報が取得できませんでした');
+                    showResult(25);
+              }
+          );
+          }
+          }
+        function showResult(temp) {
+
+        document.getElementById('loading').style.display = 'none';  
+
+        const baseDinners = {
+        'さっぱり安い和風': [
+            { emoji: '🍜', name: 'きつねうどん', desc: '優しい味わい' },
+            { emoji: '🍵', name: 'お茶漬け', desc: 'さらっと食べられる' },
+            { emoji: '🥢', name: '冷奴', desc: 'シンプルで美味しい' },
+            { emoji: '🍙', name: 'おにぎり', desc: 'さっぱり' },
+            { emoji: '🍲', name: '味噌汁', desc: 'ホッとする味' }
+        ],
+        'さっぱり普通和風': [
+            { emoji: '🍜', name: 'ざるそば', desc: 'のど越しの良いお蕎麦' },
+            { emoji: '🐟', name: '焼き魚定食', desc: 'ヘルシーで栄養満点' },
+            { emoji: '🍱', name: '鮭の塩焼き定食', desc: 'シンプルで美味しい' },
+            { emoji: '🍜', name: '月見そば', desc: '卵がとろ〜り' },
+            { emoji: '🐟', name: 'さんまの塩焼き', desc: '秋の味覚' }
+        ],
+        'さっぱり高い和風': [
+            { emoji: '🍣', name: '握り寿司', desc: '新鮮なネタで贅沢に' },
+            { emoji: '🐟', name: '刺身盛り合わせ', desc: '新鮮な魚介がたっぷり' },
+            { emoji: '🍱', name: '懐石料理', desc: '上品な和食コース' },
+            { emoji: '🦐', name: '天ぷら盛り合わせ', desc: 'サクサク高級天ぷら' },
+            { emoji: '🍣', name: 'ちらし寿司', desc: '豪華な海鮮' }
+        ],
+        'さっぱり安い洋風': [
+            { emoji: '🥪', name: 'サンドイッチ', desc: '軽めの夕飯に' },
+            { emoji: '🍲', name: 'コンソメスープ', desc: '温かくてさっぱり' },
+            { emoji: '🥗', name: 'サラダ', desc: '野菜たっぷり' },
+            { emoji: '🍅', name: 'トマトスープ', desc: 'さっぱりトマト' },
+            { emoji: '🥪', name: 'ツナサンド', desc: 'さっぱりツナ' }
+        ],
+        'さっぱり普通洋風': [
+            { emoji: '🍝', name: 'トマトパスタ', desc: 'さっぱりトマト味' },
+            { emoji: '🥗', name: 'シーザーサラダ', desc: 'ボリュームサラダ' },
+            { emoji: '🍝', name: 'ペスカトーレ', desc: '海鮮パスタ' },
+            { emoji: '🍝', name: 'ボンゴレ', desc: 'あさりのパスタ' },
+            { emoji: '🍝', name: 'ジェノベーゼ', desc: 'バジルの香り' }
+        ],
+        'さっぱり高い洋風': [
+            { emoji: '🍝', name: 'ペペロンチーノ', desc: 'シンプルで上品' },
+            { emoji: '🦐', name: 'エビのグリル', desc: 'プリプリエビ' },
+            { emoji: '🐟', name: '白身魚のムニエル', desc: '上品な味' },
+            { emoji: '🍝', name: 'カラスミのパスタ', desc: '高級珍味' },
+            { emoji: '🦐', name: 'エビのアヒージョ', desc: 'ガーリック風味' }
+        ],
+        'さっぱり安い中華': [
+            { emoji: '🥟', name: '水餃子', desc: 'つるんと食べられる' },
+            { emoji: '🍜', name: 'ワンタンスープ', desc: 'あっさりスープ' },
+            { emoji: '🥬', name: 'もやし炒め', desc: 'シャキシャキ' },
+            { emoji: '🍲', name: '卵スープ', desc: 'ふわふわ卵' },
+            { emoji: '🥟', name: 'しゅうまい', desc: 'ジューシー' }
+        ],
+        'さっぱり普通中華': [
+            { emoji: '🥬', name: '野菜炒め', desc: 'シャキシャキ野菜' },
+            { emoji: '🍜', name: '塩ラーメン', desc: 'あっさり塩味' },
+            { emoji: '🦐', name: 'エビと卵の炒め物', desc: 'ふわふわ卵' },
+            { emoji: '🥟', name: '蒸し餃子', desc: 'ヘルシー餃子' },
+            { emoji: '🍜', name: '冷やし中華', desc: '冷たくてさっぱり' }
+        ],
+        'さっぱり高い中華': [
+            { emoji: '🦐', name: 'エビチリ', desc: 'プリプリエビ' },
+            { emoji: '🐟', name: '蒸し魚', desc: '素材の味を活かした' },
+            { emoji: '🦞', name: '海鮮あんかけ', desc: '高級中華' },
+            { emoji: '🦐', name: '大海老のチリソース', desc: '本格四川料理' },
+            { emoji: '🦀', name: '上海蟹', desc: '高級食材' }
+        ],
+        'さっぱり安い韓国': [
+            { emoji: '🍜', name: '冷麺', desc: '冷たくてさっぱり' },
+            { emoji: '🥬', name: 'ナムル', desc: 'ヘルシー野菜' },
+            { emoji: '🍲', name: 'わかめスープ', desc: 'あっさりスープ' },
+            { emoji: '🍚', name: 'クッパ', desc: 'さらっと食べられる' },
+            { emoji: '🥬', name: 'もやしナムル', desc: 'シャキシャキ' }
+        ],
+        'さっぱり普通韓国': [
+            { emoji: '🍜', name: '冷麺', desc: 'シコシコ麺' },
+            { emoji: '🥗', name: 'チョレギサラダ', desc: 'さっぱり韓国風' },
+            { emoji: '🍲', name: 'サムゲタン', desc: '優しい味わい' },
+            { emoji: '🥬', name: 'ビビンバ', desc: '野菜たっぷり' },
+            { emoji: '🍜', name: 'カルグクス', desc: '手打ち麺' }
+        ],
+        'さっぱり高い韓国': [
+            { emoji: '🍲', name: 'サムゲタン', desc: '高級薬膳スープ' },
+            { emoji: '🐟', name: '刺身ビビンバ', desc: '新鮮な魚介' },
+            { emoji: '🦐', name: 'エビの塩焼き', desc: 'プリプリエビ' },
+            { emoji: '🐟', name: 'ヒラメの刺身', desc: '高級魚' },
+            { emoji: '🍲', name: 'アワビ粥', desc: '超高級粥' }
+        ],
+        'さっぱり安いエスニック': [
+            { emoji: '🍜', name: 'フォー', desc: 'あっさりベトナム麺' },
+            { emoji: '🥗', name: 'ヤムウンセン', desc: 'さっぱりタイサラダ' },
+            { emoji: '🍲', name: 'トムヤムスープ', desc: '酸っぱ辛い' },
+            { emoji: '🥢', name: '生春巻き', desc: 'ヘルシー' },
+            { emoji: '🍜', name: 'ビーフン', desc: 'さっぱり麺' }
+        ],
+        'さっぱり普通エスニック': [
+            { emoji: '🍜', name: 'フォー', desc: 'ベトナム麺' },
+            { emoji: '🥗', name: 'ソムタム', desc: 'パパイヤサラダ' },
+            { emoji: '🍲', name: 'トムヤムクン', desc: 'エビの酸辣スープ' },
+            { emoji: '🦐', name: 'エビのレモングラス焼き', desc: 'さわやか' },
+            { emoji: '🍜', name: 'ラクサ', desc: 'ココナッツ麺' }
+        ],
+        'さっぱり高いエスニック': [
+            { emoji: '🦐', name: 'トムヤムクン', desc: '本格タイ料理' },
+            { emoji: '🐟', name: 'プラー・ヌン・マナオ', desc: '蒸し魚のライム風味' },
+            { emoji: '🦞', name: 'ロブスターのレモングラス蒸し', desc: '高級エスニック' },
+            { emoji: '🍜', name: 'カオソーイ', desc: '北タイカレー麺' },
+            { emoji: '🐟', name: 'シンガポールチリクラブ', desc: '豪華海鮮' }
+        ],
+                'がっつり安い和風': [
+            { emoji: '🍛', name: '牛丼', desc: 'コスパ最高' },
+            { emoji: '🍜', name: '天ぷらうどん', desc: 'サクサク天ぷら' },
+            { emoji: '🍱', name: '唐揚げ定食', desc: 'ボリューム満点' },
+            { emoji: '🍛', name: '親子丼', desc: 'ふわとろ卵' },
+            { emoji: '🍜', name: 'カレーうどん', desc: 'スパイシー' }
+        ],
+        'がっつり普通和風': [
+            { emoji: '🍱', name: 'とんかつ定食', desc: 'サクサクとんかつ' },
+            { emoji: '🍛', name: 'カツカレー', desc: 'カレーとカツの最強コンビ' },
+            { emoji: '🍜', name: '肉うどん', desc: 'お肉たっぷり' },
+            { emoji: '🍱', name: '生姜焼き定食', desc: 'ご飯が進む' },
+            { emoji: '🍛', name: 'ハヤシライス', desc: '濃厚デミグラス' }
+        ],
+        'がっつり高い和風': [
+            { emoji: '🥩', name: 'すき焼き', desc: '贅沢にお肉' },
+            { emoji: '🍱', name: 'うな重', desc: 'スタミナ満点' },
+            { emoji: '🍖', name: '焼肉定食', desc: 'お肉でスタミナ' },
+            { emoji: '🥩', name: 'しゃぶしゃぶ', desc: 'お肉たっぷり' },
+            { emoji: '🍱', name: '特上天丼', desc: '豪華天ぷら' }
+        ],
+        'がっつり安い洋風': [
+            { emoji: '🍕', name: 'ピザ', desc: 'チーズたっぷり' },
+            { emoji: '🌭', name: 'ホットドッグ', desc: '手軽にがっつり' },
+            { emoji: '🍝', name: 'ナポリタン', desc: '懐かしい味' },
+            { emoji: '🍔', name: 'チーズバーガー', desc: 'ジューシー' },
+            { emoji: '🍖', name: 'ハンバーグ', desc: 'ジューシーで美味しい' }
+        ],
+        'がっつり普通洋風': [
+            { emoji: '🍔', name: 'ハンバーガー', desc: 'ジューシー' },
+            { emoji: '🍝', name: 'カルボナーラ', desc: '濃厚クリーミー' },
+            { emoji: '🍗', name: 'フライドチキン', desc: 'サクサクジューシー' },
+            { emoji: '🍖', name: 'デミグラスハンバーグ', desc: '濃厚ソース' },
+            { emoji: '🍝', name: 'ミートソースパスタ', desc: 'お肉たっぷり' }
+        ],
+        'がっつり高い洋風': [
+            { emoji: '🥩', name: 'ステーキ', desc: '本格ステーキ' },
+            { emoji: '🍖', name: 'ローストビーフ', desc: 'お肉の旨味' },
+            { emoji: '🍖', name: '和牛ハンバーグ', desc: '高級ハンバーグ' },
+            { emoji: '🥩', name: 'Tボーンステーキ', desc: '特大ステーキ' },
+            { emoji: '🍖', name: 'ビーフシチュー', desc: 'とろとろお肉' }
+        ],
+        'がっつり安い中華': [
+            { emoji: '🍜', name: '醤油ラーメン', desc: 'シンプルで飽きない' },
+            { emoji: '🍛', name: '中華丼', desc: 'あんかけたっぷり' },
+            { emoji: '🥟', name: '焼き餃子定食', desc: 'パリパリ餃子' },
+            { emoji: '🍜', name: '味噌ラーメン', desc: 'コクのある味' },
+            { emoji: '🍛', name: '天津飯', desc: 'ふわとろ卵' }
+        ],
+        'がっつり普通中華': [
+            { emoji: '🍜', name: '豚骨ラーメン', desc: 'こってり濃厚' },
+            { emoji: '🍜', name: '担々麺', desc: 'ピリ辛でスタミナ' },
+            { emoji: '🍛', name: '麻婆豆腐', desc: '辛くて美味しい' },
+            { emoji: '🍜', name: '油そば', desc: 'ガツンと濃厚' },
+            { emoji: '🥟', name: '餃子ラーメン', desc: 'ボリューム満点' }
+        ],
+        'がっつり高い中華': [
+            { emoji: '🦞', name: 'エビマヨ', desc: 'ボリューム満点' },
+            { emoji: '🍖', name: '酢豚', desc: 'お肉ゴロゴロ' },
+            { emoji: '🦆', name: '北京ダック', desc: '高級中華' },
+            { emoji: '🦞', name: '伊勢海老のチリソース', desc: '超豪華' },
+            { emoji: '🍖', name: '豚の角煮', desc: 'とろとろお肉' }
+        ],
+        'がっつり安い韓国': [
+            { emoji: '🍜', name: 'ラーメン', desc: '韓国インスタント麺' },
+            { emoji: '🍛', name: 'キムチチャーハン', desc: 'ピリ辛' },
+            { emoji: '🥟', name: 'マンドゥ', desc: '韓国餃子' },
+            { emoji: '🍖', name: 'プルコギ丼', desc: '甘辛お肉' },
+            { emoji: '🍜', name: 'ジャージャー麺', desc: '黒味噌麺' }
+        ],
+        'がっつり普通韓国': [
+            { emoji: '🍖', name: 'サムギョプサル', desc: '豚バラ焼肉' },
+            { emoji: '🍲', name: 'スンドゥブチゲ', desc: 'ピリ辛豆腐鍋' },
+            { emoji: '🍛', name: 'ビビンバ', desc: '混ぜて美味しい' },
+            { emoji: '🍖', name: 'プルコギ', desc: '甘辛焼肉' },
+            { emoji: '🍲', name: 'キムチチゲ', desc: 'ピリ辛鍋' }
+        ],
+        'がっつり高い韓国': [
+            { emoji: '🥩', name: 'カルビ', desc: '高級焼肉' },
+            { emoji: '🍖', name: 'ハラミ', desc: '柔らかお肉' },
+            { emoji: '🥩', name: 'ロース', desc: '上質な焼肉' },
+            { emoji: '🦞', name: 'ケジャン', desc: 'カニの醤油漬け' },
+            { emoji: '🐙', name: 'ナクチボックム', desc: 'タコの激辛炒め' }
+        ],
+        'がっつり安いエスニック': [
+            { emoji: '🍛', name: 'グリーンカレー', desc: 'ピリ辛ココナッツ' },
+            { emoji: '🍜', name: 'パッタイ', desc: 'タイ焼きそば' },
+            { emoji: '🍛', name: 'ガパオライス', desc: 'バジル炒め' },
+            { emoji: '🍜', name: 'ミーゴレン', desc: 'インドネシア焼きそば' },
+            { emoji: '🍛', name: 'ナシゴレン', desc: 'インドネシアチャーハン' }
+        ],
+        'がっつり普通エスニック': [
+            { emoji: '🍛', name: 'マッサマンカレー', desc: '濃厚タイカレー' },
+            { emoji: '🍜', name: 'パッタイ', desc: 'タイ風焼きそば' },
+            { emoji: '🍛', name: 'ガパオライス', desc: 'ピリ辛バジル' },
+            { emoji: '🍖', name: 'サテ', desc: '串焼き肉' },
+            { emoji: '🍛', name: 'レッドカレー', desc: 'ピリ辛カレー' }
+        ],
+        'がっつり高いエスニック': [
+            { emoji: '🦞', name: 'ロブスターカレー', desc: '豪華エスニック' },
+            { emoji: '🍖', name: 'ラムのマッサマンカレー', desc: '高級カレー' },
+            { emoji: '🦆', name: 'ダックカレー', desc: '鴨肉のカレー' },
+            { emoji: '🥩', name: 'ビーフルンダン', desc: '牛肉の煮込み' },
+            { emoji: '🦐', name: 'エビのパッポンカリー', desc: '卵とじカレー' }
+        ],
+                'ヘルシー安い和風': [
+            { emoji: '🍵', name: 'お茶漬け', desc: 'お腹に優しい' },
+            { emoji: '🥢', name: '湯豆腐', desc: 'シンプルで健康的' },
+            { emoji: '🍲', name: '味噌汁定食', desc: '温まる' },
+            { emoji: '🍙', name: '玄米おにぎり', desc: '栄養たっぷり' },
+            { emoji: '🥢', name: '納豆定食', desc: 'ネバネバパワー' }
+        ],
+        'ヘルシー普通和風': [
+            { emoji: '🍱', name: '和定食', desc: 'バランス良し' },
+            { emoji: '🐟', name: '焼き魚定食', desc: 'タンパク質も摂れる' },
+            { emoji: '🍜', name: 'とろろそば', desc: 'ネバネバで健康' },
+            { emoji: '🥗', name: '豆腐サラダ', desc: 'ヘルシー' },
+            { emoji: '🍱', name: 'ひじき煮定食', desc: '栄養満点' }
+        ],
+        'ヘルシー高い和風': [
+            { emoji: '🐟', name: '煮魚定食', desc: '栄養バランス抜群' },
+            { emoji: '🍱', name: '精進料理', desc: '体に優しい' },
+            { emoji: '🥢', name: '懐石料理', desc: '上品で健康的' },
+            { emoji: '🐟', name: '西京焼き', desc: '上品な味' },
+            { emoji: '🍱', name: '松花堂弁当', desc: 'バランス抜群' }
+        ],
+        'ヘルシー安い洋風': [
+            { emoji: '🥗', name: 'グリーンサラダ', desc: '野菜たっぷり' },
+            { emoji: '🍅', name: 'トマトスープ', desc: '温かくヘルシー' },
+            { emoji: '🥖', name: 'フランスパン', desc: 'シンプルに' },
+            { emoji: '🥗', name: 'コールスロー', desc: 'さっぱり' },
+            { emoji: '🍲', name: '野菜スープ', desc: '温まる' }
+        ],
+        'ヘルシー普通洋風': [
+            { emoji: '🥗', name: 'コブサラダ', desc: 'カラフルで栄養満点' },
+            { emoji: '🍲', name: 'ミネストローネ', desc: '野菜スープ' },
+            { emoji: '🐔', name: 'チキンサラダ', desc: 'タンパク質も' },
+            { emoji: '🥙', name: 'ラップサンド', desc: '野菜たっぷり' },
+            { emoji: '🥗', name: 'ニース風サラダ', desc: '地中海風' }
+        ],
+        'ヘルシー高い洋風': [
+            { emoji: '🍽️', name: 'グリルチキン', desc: 'タンパク質もしっかり' },
+            { emoji: '🥗', name: 'キヌアサラダ', desc: 'スーパーフード' },
+            { emoji: '🐟', name: 'サーモングリル', desc: 'オメガ3たっぷり' },
+            { emoji: '🥗', name: 'アボカドサラダ', desc: '良質な脂質' },
+            { emoji: '🐟', name: 'タラのムニエル', desc: '上品な白身魚' }
+        ],
+        'ヘルシー安い中華': [
+            { emoji: '🥟', name: '蒸し餃子', desc: '油少なめ' },
+            { emoji: '🍲', name: '中華スープ', desc: '温まる' },
+            { emoji: '🥢', name: '春雨サラダ', desc: 'さっぱり' },
+            { emoji: '🥬', name: 'もやしナムル', desc: 'ヘルシー' },
+            { emoji: '🍲', name: 'わかめスープ', desc: 'ミネラル豊富' }
+        ],
+        'ヘルシー普通中華': [
+            { emoji: '🥬', name: '野菜炒め', desc: '野菜たっぷり' },
+            { emoji: '🍜', name: 'ワンタン麺', desc: 'あっさりスープ' },
+            { emoji: '🥟', name: '小籠包', desc: 'ヘルシー点心' },
+            { emoji: '🥬', name: '青菜炒め', desc: 'シンプル野菜' },
+            { emoji: '🍲', name: '酸辣湯', desc: '酸っぱ辛い' }
+        ],
+        'ヘルシー高い中華': [
+            { emoji: '🦐', name: '海老と野菜の蒸し物', desc: '素材の味' },
+            { emoji: '🐟', name: '蒸し魚', desc: '高級ヘルシー' },
+            { emoji: '🥬', name: '薬膳スープ', desc: '体に優しい' },
+            { emoji: '🦐', name: 'エビと豆腐の煮込み', desc: 'ヘルシー高級' },
+            { emoji: '🍲', name: 'フカヒレスープ', desc: '最高級スープ' }
+        ],
+        'ヘルシー安い韓国': [
+            { emoji: '🥬', name: 'ナムル盛り合わせ', desc: '野菜たっぷり' },
+            { emoji: '🍲', name: 'わかめスープ', desc: 'ミネラル豊富' },
+            { emoji: '🥬', name: 'もやしナムル', desc: 'シャキシャキ' },
+            { emoji: '🍚', name: '野菜粥', desc: 'ヘルシー' },
+            { emoji: '🥬', name: 'きゅうりのナムル', desc: 'さわやか' }
+        ],
+        'ヘルシー普通韓国': [
+            { emoji: '🥬', name: 'ビビンバ', desc: '野菜たっぷり' },
+            { emoji: '🍲', name: 'テンジャンチゲ', desc: '味噌スープ' },
+            { emoji: '🥗', name: 'チョレギサラダ', desc: 'さっぱり' },
+            { emoji: '🥬', name: 'ナムル定食', desc: 'バランス良し' },
+            { emoji: '🍲', name: 'ユッケジャンスープ', desc: 'ピリ辛スープ' }
+        ],
+        'ヘルシー高い韓国': [
+            { emoji: '🍲', name: 'サムゲタン', desc: '高級薬膳スープ' },
+            { emoji: '🍲', name: 'アワビ粥', desc: '超高級粥' },
+            { emoji: '🥬', name: '高級ナムル盛り合わせ', desc: '上質な野菜' },
+            { emoji: '🍲', name: 'ナマコ粥', desc: '高級食材' },
+            { emoji: '🥗', name: '海藻サラダ', desc: 'ミネラル豊富' }
+        ],
+        'ヘルシー安いエスニック': [
+            { emoji: '🍜', name: 'フォー', desc: 'あっさりベトナム麺' },
+            { emoji: '🥗', name: 'ヤムウンセン', desc: 'さっぱりタイサラダ' },
+            { emoji: '🥢', name: '生春巻き', desc: 'ヘルシー' },
+            { emoji: '🥗', name: 'パパイヤサラダ', desc: 'さわやか' },
+            { emoji: '🍜', name: 'ビーフン', desc: 'さっぱり麺' }
+        ],
+        'ヘルシー普通エスニック': [
+            { emoji: '🍜', name: 'フォー', desc: 'ベトナム麺' },
+            { emoji: '🥗', name: 'ソムタム', desc: 'パパイヤサラダ' },
+            { emoji: '🍲', name: 'トムヤムクン', desc: 'エビの酸辣スープ' },
+            { emoji: '🥢', name: '生春巻き', desc: 'ヘルシー' },
+            { emoji: '🥗', name: 'タイ風サラダ', desc: 'ピリ辛' }
+        ],
+        'ヘルシー高いエスニック': [
+            { emoji: '🦐', name: 'トムヤムクン', desc: '本格タイ料理' },
+            { emoji: '🐟', name: 'プラー・ヌン・マナオ', desc: '蒸し魚のライム風味' },
+            { emoji: '🦞', name: 'ロブスターのレモングラス蒸し', desc: '高級エスニック' },
+            { emoji: '🍜', name: 'カオソーイ', desc: '北タイカレー麺' },
+            { emoji: '🐟', name: 'シンガポールチリクラブ', desc: '豪華海鮮' }
+        ]
+    };
+
+    // 結果を表示する部分
+    const key = answers[1] + answers[2] + answers[3];
+    const candidates = baseDinners[key] || baseDinners['さっぱり普通和風'];
+    
+    const index = Math.floor(Math.random() * candidates.length);
+    
+    // 元のデータをコピーして新しいオブジェクトを作る
+    let dinner = {
+        emoji: candidates[index].emoji,
+        name: candidates[index].name,
+        desc: candidates[index].desc
+    };
+    
+    // 気温による説明追加
+    if (answers[4] === '暑い') {
+        if (answers[1] === 'さっぱり') {
+            dinner.desc += '！暑い夜にぴったり';
+        } else if (answers[1] === 'がっつり') {
+            dinner.desc += '！暑さに負けずスタミナ補給';
+        } else {
+            dinner.desc += '！暑い日でも食べやすい';
+        }
+    } else if (answers[4] === '寒い') {
+        if (answers[1] === 'さっぱり') {
+            dinner.desc += '！温かくてホッとする';
+        } else if (answers[1] === 'がっつり') {
+            dinner.desc += '！体が温まります';
+        } else {
+            dinner.desc += '！寒い夜に最適';
+        }
+    } else {
+        dinner.desc += '！今夜にぴったり';
+    }
+
+    document.getElementById('emoji').textContent = dinner.emoji;
+    document.getElementById('dinnerName').textContent = dinner.name;
+    document.getElementById('dinnerDesc').textContent = dinner.desc;
+    if (temp >= 28) {
+        document.body.style.background =
+        'linear-gradient(-45deg, #ff9966, #ff5e62, #ff6a88)';
+    } else if (temp <= 15) {
+        document.body.style.background =
+        'linear-gradient(-45deg, #2193b0, #6dd5ed, #74ebd5)';
+    } else {
+        document.body.style.background =
+        'linear-gradient(-45deg, #667eea, #764ba2, #6dd5ed)';
+    }
+    let weatherMessage = '';
+    if (temp >= 28) {
+        weatherMessage = '🔥 暑いですね！';
+    } else if (temp <= 15) {
+        weatherMessage = '❄️ 寒いですね！';
+    } else {
+        weatherMessage = '🌤 過ごしやすい気温です';
+    }
+    document.getElementById('weatherInfo').innerHTML =
+    `${weatherMessage}<br>現在は ${Math.round(temp)}℃`;
+    document.getElementById('result').classList.add('active');
+    document.getElementById('progress').style.display = 'none';
+    }
+        function shareLINE() {
+            const dinnerName = document.getElementById('dinnerName').textContent;
+
+            if (!liff.isInClient()) {
+                alert('LINEアプリ内で開いてください');
+                return;
+            }
+
+            liff.shareTargetPicker([{
+                type: 'text',
+                text: `今夜のおすすめ夕飯は「${dinnerName}」でした！🍴\nあなたも診断してみよう！`
+            }]);
+        }
+        function openMap() {
+
+        const dinnerName =
+            document.getElementById('dinnerName').textContent;
+
+        const url =
+        `https://www.google.com/maps/search/${encodeURIComponent(dinnerName)}`;
+
+        window.open(url, '_blank');
+    }
+
+        function restart() {
+            answers = {};
+            document.querySelectorAll('.question, .result').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('q1').classList.add('active');
+            document.getElementById('progress').style.display = 'flex';
+            // プログレスバーリセット
+            const dots = document.querySelectorAll('.progress-dot');
+            dots.forEach((dot, index) => {
+                if (index === 0) {
+                  dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
