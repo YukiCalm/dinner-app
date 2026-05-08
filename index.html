@@ -188,12 +188,24 @@
             isProcessing = true;
             document.getElementById("loading").style.display="block";
         
-            navigator.geolocation.getCurrentPosition(async pos=>{
-                const temp = await getWeather(pos.coords.latitude,pos.coords.longitude);
-                showResult(temp);
-            },()=>{
-                showResult(25);
-            });
+            navigator.geolocation.getCurrentPosition(
+                async pos => {
+                    try {
+                        const temp = await getWeather(
+                            pos.coords.latitude,
+                            pos.coords.longitude
+                        );
+
+                        showResult(temp);
+                    } catch(error) {
+                        console.log(error);
+                        showResult(25);
+                    }
+                },
+                () => {
+                    showResult(25); 
+                }
+        );
         }
         
         async function getWeather(lat,lon){
