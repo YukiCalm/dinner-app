@@ -278,35 +278,32 @@
                 "うな重",
                 "ちらし寿司",
                 "手巻き寿司"
-];
+            ];
 
-    const menu = allMenus[Math.floor(Math.random() * allMenus.length)];
+            const menu = allMenus[Math.floor(Math.random() * allMenus.length)];
         
-        document.getElementById("loading").style.display="none";
+            document.getElementById("loading").style.display="none";
         
-        const menus=["ラーメン","寿司","カレー","焼肉","パスタ"];
-        const menu = menus[Math.floor(Math.random()*menus.length)];
+            document.getElementById("result").classList.add("active");
         
-        document.getElementById("result").classList.add("active");
+            document.getElementById("dinnerName").textContent = menu;
+            document.getElementById("dinnerDesc").textContent =
+                `今日のおすすめは${menu}！`;
         
-        document.getElementById("dinnerName").textContent = menu;
-        document.getElementById("dinnerDesc").textContent =
-        `今日のおすすめは${menu}！`;
+            document.getElementById("weatherInfo").textContent =
+                `現在${Math.round(temp)}℃`;
         
-        document.getElementById("weatherInfo").textContent =
-        `現在${Math.round(temp)}℃`;
+            const img = document.getElementById("dinnerImage");
+            img.style.opacity=0;
         
-        const img = document.getElementById("dinnerImage");
-        img.style.opacity=0;
+            setTimeout(()=>{
+                img.src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
+                img.style.opacity=1;
+            },200);
+            }
         
-        setTimeout(()=>{
-            img.src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
-            img.style.opacity=1;
-        },200);
-        }
-        
-        function restart(){
-            location.reload();
+            function restart(){
+                location.reload();
         }
     </script>
 
